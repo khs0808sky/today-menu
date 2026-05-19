@@ -1,0 +1,24 @@
+# 환경 변수 (절대 깃에 올리지 말 것!)
+.env
+.env.local
+.env.*.local
+
+# 파이썬 가상환경
+venv/
+.venv/
+env/
+
+# 파이썬 캐시 (자동 생성되는 임시 파일)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code 개인 설정
+.vscode/
+
+# 운영체제별 시스템 파일
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log

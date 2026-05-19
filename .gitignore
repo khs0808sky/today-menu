@@ -1,0 +1,10 @@
+# 백엔드
+today-menu-back/venv/
+today-menu-back/__pycache__/
+today-menu-back/.env
+
+# 프론트엔드
+today-menu-front/node_modules/
+
+# 기타
+.DS_Store
