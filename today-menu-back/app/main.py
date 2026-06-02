@@ -7,8 +7,12 @@ AI한테 물어보고 결과를 돌려주는 서버예요.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel  # 입력 형식 검증 도구
-from app.recommender import recommend_menu  # 어제 만든 추천 함수
+from pydantic import BaseModel
+from app.recommender import recommend_menu
+from dotenv import load_dotenv  # ← 추가
+import os                        # ← 추가
+
+load_dotenv()  # ← 추가 (.env 파일 읽기)
 
 # FastAPI 앱 생성 (서버 본체)
 app = FastAPI(title="오늘 뭐 먹지? API")
@@ -56,3 +60,35 @@ def recommend(request: RecommendRequest):
         location=request.location,
     )
     return result  # AI 추천 결과를 그대로 돌려줌
+
+# ─────────────────────────────────────────
+# 엔드포인트 3: 좌표 → 동네이름 변환
+# ─────────────────────────────────────────
+# GET /address?lat=37.5&lon=126.9  →  "인천 미추홀구" 같은 주소 반환
+@app.get("/address")
+def get_address(lat: float, lon: float):
+    import requests
+
+    # API 키 (영문+숫자만, 앞뒤 공백 제거)
+    KAKAO_API_KEY = os.getenv("KAKAO_REST_API_KEY")
+
+    headers = {"Authorization": "KakaoAK " + KAKAO_API_KEY}  # f-string 대신 + 연결
+
+    response = requests.get(
+        "https://dapi.kakao.com/v2/local/geo/coord2regioncode.json",
+        headers=headers,
+        params={"x": str(lon), "y": str(lat)},  # 문자열로 변환
+    )
+
+    data = response.json()
+
+    if data.get("documents"):
+        region = data["documents"][0]
+        address = (
+            region["region_1depth_name"] + " " +
+            region["region_2depth_name"] + " " +
+            region["region_3depth_name"]
+        )
+        return {"address": address}
+    else:
+        return {"address": f"{lat:.4f}, {lon:.4f}"}
