@@ -20,7 +20,6 @@
   overflow: hidden;
 }
 
-/* Decorative circles for depth */
 .app-header::before {
   content: '';
   position: absolute;
@@ -33,7 +32,6 @@
   pointer-events: none;
 }
 
-/* Wave bottom edge */
 .app-header::after {
   content: '';
   position: absolute;
@@ -230,7 +228,7 @@
 }
 
 /* ============================================
-   Mood quick-select chips
+   Mood chips
    ============================================ */
 .chips {
   display: flex;
@@ -266,7 +264,7 @@
 }
 
 /* ============================================
-   Main recommend button
+   Recommend button
    ============================================ */
 .recommend-btn {
   width: 100%;
@@ -329,17 +327,11 @@
 }
 
 /* ============================================
-   Results section
+   Results
    ============================================ */
 @keyframes fadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .results-section {
@@ -368,9 +360,6 @@
   margin: 0;
 }
 
-/* ============================================
-   Result cards
-   ============================================ */
 .result-card {
   background: #ffffff;
   border-radius: 20px;
@@ -402,20 +391,9 @@
   color: white;
 }
 
-.result-rank.rank-1 {
-  background: linear-gradient(135deg, #FF6B35, #FF3D00);
-  box-shadow: 0 4px 12px rgba(255, 80, 0, 0.35);
-}
-
-.result-rank.rank-2 {
-  background: linear-gradient(135deg, #FFB300, #FF8F00);
-  box-shadow: 0 4px 12px rgba(255, 150, 0, 0.3);
-}
-
-.result-rank.rank-3 {
-  background: linear-gradient(135deg, #66BB6A, #388E3C);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.28);
-}
+.result-rank.rank-1 { background: linear-gradient(135deg, #FF6B35, #FF3D00); box-shadow: 0 4px 12px rgba(255, 80, 0, 0.35); }
+.result-rank.rank-2 { background: linear-gradient(135deg, #FFB300, #FF8F00); box-shadow: 0 4px 12px rgba(255, 150, 0, 0.3); }
+.result-rank.rank-3 { background: linear-gradient(135deg, #66BB6A, #388E3C); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.28); }
 
 .result-content {
   flex: 1;
@@ -458,6 +436,115 @@
 }
 
 /* ============================================
+   Nearby button
+   ============================================ */
+.nearby-btn {
+  margin-top: 12px;
+  padding: 9px 14px;
+  background: #FFF3EE;
+  border: 1.5px solid #FF6B35;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FF6B35;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.nearby-btn:hover:not(:disabled) {
+  background: #FF6B35;
+  color: white;
+}
+
+.nearby-btn.active {
+  background: #FF6B35;
+  color: white;
+}
+
+.nearby-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Nearby section
+   ============================================ */
+.nearby-section {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow:
+    0 2px 8px rgba(255, 107, 53, 0.07),
+    0 6px 22px rgba(0, 0, 0, 0.05);
+  animation: fadeSlideUp 0.3s ease both;
+}
+
+.nearby-title {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #1A0A00 !important;
+  margin: 0 0 14px !important;
+}
+
+.nearby-card {
+  display: block;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #F0E0D5;
+  margin-bottom: 8px;
+  text-decoration: none;
+  background: #FFFAF7;
+  transition: all 0.15s ease;
+}
+
+.nearby-card:hover {
+  border-color: #FF6B35;
+  background: #FFF3EE;
+  transform: translateY(-1px);
+}
+
+.nearby-card:last-child {
+  margin-bottom: 0;
+}
+
+.nearby-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A0A00;
+  margin-bottom: 4px;
+}
+
+.nearby-address {
+  font-size: 12px;
+  color: #9A7060;
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.nearby-phone {
+  font-size: 12px;
+  color: #B8967A;
+  margin-bottom: 4px;
+}
+
+.nearby-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF6B35;
+  margin-top: 4px;
+}
+
+.nearby-empty {
+  font-size: 13px;
+  color: #A08070;
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}
+
+/* ============================================
    Bottom padding
    ============================================ */
 .bottom-spacer {
@@ -465,7 +552,7 @@
 }
 
 /* ============================================
-   PC elements hidden by default (mobile-first)
+   PC elements hidden by default
    ============================================ */
 .pc-hero-form,
 .pc-results-section {
@@ -473,16 +560,14 @@
 }
 
 /* ============================================
-   PC Layout — 768px and above
+   PC Layout 768px+
    ============================================ */
 @media (min-width: 768px) {
 
-  /* Hide mobile-only content on PC */
   .mobile-only {
     display: none !important;
   }
 
-  /* --- Hero section (PC) --- */
   .app-header {
     padding: 52px 40px 88px;
   }
@@ -491,7 +576,6 @@
     margin-bottom: 36px;
   }
 
-  /* --- PC inline form --- */
   .pc-hero-form {
     display: block;
     max-width: 1200px;
@@ -507,8 +591,6 @@
 
   .pc-input-card {
     background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     border: 1.5px solid rgba(255, 255, 255, 0.3);
     border-radius: 18px;
     padding: 16px 18px;
@@ -537,7 +619,7 @@
     font-family: inherit;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease;
     line-height: 1.4;
   }
 
@@ -551,7 +633,6 @@
     font-size: 13px;
   }
 
-  /* Chips inside PC hero (white-on-orange style) */
   .pc-chips .chip {
     background: rgba(255, 255, 255, 0.18);
     border-color: rgba(255, 255, 255, 0.4);
@@ -570,10 +651,8 @@
     background: white;
     color: #FF6B35;
     border-color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
-  /* Action buttons row */
   .pc-form-actions {
     display: flex;
     align-items: center;
@@ -627,16 +706,11 @@
     gap: 10px;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
     font-family: inherit;
-    letter-spacing: 0.2px;
   }
 
   .pc-recommend-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
-  }
-
-  .pc-recommend-btn:active:not(:disabled) {
-    transform: translateY(0);
   }
 
   .pc-recommend-btn:disabled {
@@ -645,13 +719,11 @@
     transform: none;
   }
 
-  /* Orange spinner for use on white button */
   .spinner-orange {
     border-color: rgba(255, 107, 53, 0.3);
     border-top-color: #FF6B35;
   }
 
-  /* --- PC Results --- */
   .pc-results-section {
     display: block;
     max-width: 1200px;
@@ -668,6 +740,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    margin-bottom: 32px;
   }
 
   .pc-result-card {
@@ -704,5 +777,14 @@
     align-items: flex-start !important;
     gap: 6px !important;
     margin-bottom: 4px !important;
+  }
+
+  .pc-results-section .nearby-section {
+    margin-top: 8px;
+  }
+
+  .pc-results-section .nearby-title {
+    font-size: 18px !important;
+    margin-bottom: 18px !important;
   }
 }

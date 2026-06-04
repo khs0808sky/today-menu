@@ -110,3 +110,46 @@ async def get_weather(req: WeatherRequest):
         "temp": data["main"]["temp"],                       # 기온 (섭씨)
         "city": data["name"],                               # 도시명
     }
+
+# 근처 식당 검색 요청 스키마
+class NearbyRequest(BaseModel):
+    menu: str      # 추천받은 메뉴명 (예: "김치찌개")
+    location: str  # 사용자 위치 (예: "경기도 부천시 원미구 중동")
+
+@app.post("/nearby")
+async def get_nearby(req: NearbyRequest):
+    api_key = os.getenv("KAKAO_REST_API_KEY")
+
+    # "부천시 원미구 중동 김치찌개" 형태로 검색
+    query = f"{req.location} {req.menu}"
+
+    url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+    headers = {"Authorization": f"KakaoAK {api_key}"}
+    params = {
+        "query": query,
+        "size": 5,          # 최대 5개
+        "category_group_code": "FD6",  # 음식점만 필터
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=502, detail="카카오 장소 검색 실패")
+
+    data = response.json()
+    places = data.get("documents", [])
+
+    # 필요한 정보만 추려서 반환
+    return {
+        "places": [
+            {
+                "name": p["place_name"],           # 식당명
+                "address": p["road_address_name"] or p["address_name"],  # 주소
+                "phone": p["phone"],               # 전화번호
+                "url": p["place_url"],             # 카카오맵 링크
+                "distance": p.get("distance", ""), # 거리 (미터)
+            }
+            for p in places
+        ]
+    }

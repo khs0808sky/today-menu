@@ -17,6 +17,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [autoLoading, setAutoLoading] = useState(false);
   const [selectedMood, setSelectedMood] = useState(null);
+  const [nearbyPlaces, setNearbyPlaces] = useState(null);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
   const getLocation = () =>
     new Promise((resolve, reject) => {
@@ -76,6 +79,8 @@ function App() {
   const handleRecommend = async () => {
     setLoading(true);
     setResults(null);
+    setNearbyPlaces(null);
+    setSelectedMenu(null);
     try {
       const res = await fetch("http://localhost:8000/recommend", {
         method: "POST",
@@ -91,20 +96,68 @@ function App() {
     }
   };
 
+  const handleNearby = async (menuName) => {
+    if (selectedMenu === menuName && nearbyPlaces) {
+      setNearbyPlaces(null);
+      setSelectedMenu(null);
+      return;
+    }
+    setSelectedMenu(menuName);
+    setNearbyPlaces(null);
+    setNearbyLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/nearby", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ menu: menuName, location }),
+      });
+      const data = await res.json();
+      setNearbyPlaces(data.places);
+    } catch {
+      alert("근처 식당 검색 실패!");
+    } finally {
+      setNearbyLoading(false);
+    }
+  };
+
   const isLoading = loading || autoLoading;
+
+  const NearbySection = () =>
+    nearbyPlaces && (
+      <div className="nearby-section">
+        <h3 className="nearby-title">📍 {selectedMenu} 근처 식당</h3>
+        {nearbyPlaces.length === 0 ? (
+          <p className="nearby-empty">근처 식당을 찾지 못했어요.</p>
+        ) : (
+          nearbyPlaces.map((place, i) => (
+            <a
+              key={i}
+              href={place.url}
+              target="_blank"
+              rel="noreferrer"
+              className="nearby-card"
+            >
+              <div className="nearby-name">{place.name}</div>
+              <div className="nearby-address">{place.address}</div>
+              {place.phone && (
+                <div className="nearby-phone">📞 {place.phone}</div>
+              )}
+              <div className="nearby-link">카카오맵에서 보기 →</div>
+            </a>
+          ))
+        )}
+      </div>
+    );
 
   return (
     <div className="app">
-      {/* Header */}
       <header className="app-header">
-        {/* Brand area — visible on both */}
         <div className="hero-brand">
           <span className="app-logo">🍜</span>
           <h1 className="app-title">오늘 뭐 먹지?</h1>
           <p className="app-subtitle">AI가 당신의 오늘에 꼭 맞는 메뉴를 추천해드려요</p>
         </div>
 
-        {/* PC-only inline form inside hero */}
         <div className="pc-hero-form">
           <div className="pc-inputs-row">
             <div className="pc-input-card">
@@ -171,7 +224,6 @@ function App() {
         </div>
       </header>
 
-      {/* PC-only results (3-column grid) */}
       {results && (
         <div className="pc-results-section">
           <div className="results-header pc-results-header">
@@ -193,50 +245,38 @@ function App() {
                   <span className="result-category">{item.category}</span>
                 </div>
                 <p className="result-reason">{item.reason}</p>
+                <button
+                  className={`nearby-btn${selectedMenu === item.name && nearbyPlaces ? " active" : ""}`}
+                  onClick={() => handleNearby(item.name)}
+                  disabled={nearbyLoading && selectedMenu !== item.name}
+                >
+                  {nearbyLoading && selectedMenu === item.name
+                    ? "검색 중... 🔍"
+                    : selectedMenu === item.name && nearbyPlaces
+                    ? "📍 식당 목록 닫기"
+                    : "📍 근처 식당 보기"}
+                </button>
               </div>
             ))}
           </div>
+          <NearbySection />
         </div>
       )}
 
-      {/* Mobile-only content */}
       <div className="app-content mobile-only">
-        {/* Location auto-fill */}
         <div className="card">
-          <button
-            className="location-btn"
-            onClick={handleAutoFill}
-            disabled={isLoading}
-          >
-            {autoLoading ? (
-              <span className="spinner" />
-            ) : (
-              <span className="btn-icon">📍</span>
-            )}
-            <span>
-              {autoLoading ? "위치와 날씨를 가져오는 중..." : "내 위치와 날씨 자동으로 가져오기"}
-            </span>
+          <button className="location-btn" onClick={handleAutoFill} disabled={isLoading}>
+            {autoLoading ? <span className="spinner" /> : <span className="btn-icon">📍</span>}
+            <span>{autoLoading ? "위치와 날씨를 가져오는 중..." : "내 위치와 날씨 자동으로 가져오기"}</span>
           </button>
-
           {(location || weather) && !autoLoading && (
             <div className="location-info">
-              {location && (
-                <div className="location-info-item">
-                  <span>📍</span>
-                  <span>{location}</span>
-                </div>
-              )}
-              {weather && (
-                <div className="location-info-item">
-                  <span>🌤️</span>
-                  <span>{weather}</span>
-                </div>
-              )}
+              {location && <div className="location-info-item"><span>📍</span><span>{location}</span></div>}
+              {weather && <div className="location-info-item"><span>🌤️</span><span>{weather}</span></div>}
             </div>
           )}
         </div>
 
-        {/* Input fields */}
         <div className="card input-section">
           <div className="input-group">
             <label className="input-label">지금 기분이나 상황</label>
@@ -261,9 +301,7 @@ function App() {
               ))}
             </div>
           </div>
-
           <div className="input-divider" />
-
           <div className="input-group">
             <label className="input-label">날씨</label>
             <div className="input-wrapper">
@@ -276,9 +314,7 @@ function App() {
               />
             </div>
           </div>
-
           <div className="input-divider" />
-
           <div className="input-group">
             <label className="input-label">위치</label>
             <div className="input-wrapper">
@@ -293,26 +329,14 @@ function App() {
           </div>
         </div>
 
-        {/* Recommend button */}
-        <button
-          className="recommend-btn"
-          onClick={handleRecommend}
-          disabled={isLoading}
-        >
+        <button className="recommend-btn" onClick={handleRecommend} disabled={isLoading}>
           {loading ? (
-            <>
-              <span className="spinner" />
-              <span>AI가 메뉴를 고르는 중...</span>
-            </>
+            <><span className="spinner" /><span>AI가 메뉴를 고르는 중...</span></>
           ) : (
-            <>
-              <span className="recommend-btn-emoji">🍽️</span>
-              <span>오늘의 메뉴 추천받기</span>
-            </>
+            <><span className="recommend-btn-emoji">🍽️</span><span>오늘의 메뉴 추천받기</span></>
           )}
         </button>
 
-        {/* Mobile results */}
         {results && (
           <div className="results-section">
             <div className="results-header">
@@ -332,12 +356,24 @@ function App() {
                     <span className="result-category">{item.category}</span>
                   </div>
                   <p className="result-reason">{item.reason}</p>
+                  <button
+                    className={`nearby-btn${selectedMenu === item.name && nearbyPlaces ? " active" : ""}`}
+                    onClick={() => handleNearby(item.name)}
+                    disabled={nearbyLoading && selectedMenu !== item.name}
+                  >
+                    {nearbyLoading && selectedMenu === item.name
+                      ? "검색 중... 🔍"
+                      : selectedMenu === item.name && nearbyPlaces
+                      ? "📍 식당 목록 닫기"
+                      : "📍 근처 식당 보기"}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
 
+        <NearbySection />
         <div className="bottom-spacer" />
       </div>
     </div>
