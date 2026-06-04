@@ -97,12 +97,110 @@ function App() {
     <div className="app">
       {/* Header */}
       <header className="app-header">
-        <span className="app-logo">🍜</span>
-        <h1 className="app-title">오늘 뭐 먹지?</h1>
-        <p className="app-subtitle">AI가 당신의 오늘에 꼭 맞는 메뉴를 추천해드려요</p>
+        {/* Brand area — visible on both */}
+        <div className="hero-brand">
+          <span className="app-logo">🍜</span>
+          <h1 className="app-title">오늘 뭐 먹지?</h1>
+          <p className="app-subtitle">AI가 당신의 오늘에 꼭 맞는 메뉴를 추천해드려요</p>
+        </div>
+
+        {/* PC-only inline form inside hero */}
+        <div className="pc-hero-form">
+          <div className="pc-inputs-row">
+            <div className="pc-input-card">
+              <label className="pc-input-label">💭 기분 / 상황</label>
+              <input
+                className="pc-input-field"
+                placeholder="예: 비 와서 우울해요"
+                value={mood}
+                onChange={handleMoodInput}
+              />
+              <div className="chips pc-chips">
+                {MOOD_CHIPS.map((chip) => (
+                  <button
+                    key={chip.value}
+                    className={`chip${selectedMood === chip.value ? " active" : ""}`}
+                    onClick={() => handleMoodChip(chip)}
+                  >
+                    {chip.emoji} {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pc-input-card">
+              <label className="pc-input-label">🌤️ 날씨</label>
+              <input
+                className="pc-input-field"
+                placeholder="예: 맑고 더워요, 비가 와요"
+                value={weather}
+                onChange={(e) => setWeather(e.target.value)}
+              />
+            </div>
+
+            <div className="pc-input-card">
+              <label className="pc-input-label">🗺️ 위치</label>
+              <input
+                className="pc-input-field"
+                placeholder="예: 서울 강남구, 부산 해운대"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="pc-form-actions">
+            <button className="pc-autofill-btn" onClick={handleAutoFill} disabled={isLoading}>
+              {autoLoading ? <span className="spinner" /> : <span>📍</span>}
+              <span>{autoLoading ? "위치·날씨 가져오는 중..." : "위치·날씨 자동"}</span>
+            </button>
+            <button className="pc-recommend-btn" onClick={handleRecommend} disabled={isLoading}>
+              {loading ? (
+                <>
+                  <span className="spinner spinner-orange" />
+                  <span>AI가 메뉴를 고르는 중...</span>
+                </>
+              ) : (
+                <>
+                  <span className="recommend-btn-emoji">🍽️</span>
+                  <span>오늘의 메뉴 추천받기</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </header>
 
-      <div className="app-content">
+      {/* PC-only results (3-column grid) */}
+      {results && (
+        <div className="pc-results-section">
+          <div className="results-header pc-results-header">
+            <h2 className="results-title">✨ 오늘의 추천 메뉴</h2>
+            <p className="results-subtitle">AI가 당신의 상황에 맞게 골라드렸어요</p>
+          </div>
+          <div className="pc-results-grid">
+            {results.map((item, index) => (
+              <div
+                key={index}
+                className={`pc-result-card rank-${index + 1}`}
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
+                <div className={`pc-result-num rank-${index + 1}`}>
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+                <div className="result-top pc-result-top">
+                  <h3 className="result-name">{item.name}</h3>
+                  <span className="result-category">{item.category}</span>
+                </div>
+                <p className="result-reason">{item.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile-only content */}
+      <div className="app-content mobile-only">
         {/* Location auto-fill */}
         <div className="card">
           <button
@@ -214,7 +312,7 @@ function App() {
           )}
         </button>
 
-        {/* Results */}
+        {/* Mobile results */}
         {results && (
           <div className="results-section">
             <div className="results-header">

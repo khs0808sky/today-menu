@@ -463,3 +463,246 @@
 .bottom-spacer {
   height: 40px;
 }
+
+/* ============================================
+   PC elements hidden by default (mobile-first)
+   ============================================ */
+.pc-hero-form,
+.pc-results-section {
+  display: none;
+}
+
+/* ============================================
+   PC Layout — 768px and above
+   ============================================ */
+@media (min-width: 768px) {
+
+  /* Hide mobile-only content on PC */
+  .mobile-only {
+    display: none !important;
+  }
+
+  /* --- Hero section (PC) --- */
+  .app-header {
+    padding: 52px 40px 88px;
+  }
+
+  .hero-brand {
+    margin-bottom: 36px;
+  }
+
+  /* --- PC inline form --- */
+  .pc-hero-form {
+    display: block;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .pc-inputs-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .pc-input-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pc-input-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+  }
+
+  .pc-input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #1A0A00;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    line-height: 1.4;
+  }
+
+  .pc-input-field:focus {
+    border-color: #FF3D00;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.18);
+  }
+
+  .pc-input-field::placeholder {
+    color: #CCAA98;
+    font-size: 13px;
+  }
+
+  /* Chips inside PC hero (white-on-orange style) */
+  .pc-chips .chip {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .pc-chips .chip:hover {
+    background: rgba(255, 255, 255, 0.32);
+    border-color: white;
+    color: white;
+  }
+
+  .pc-chips .chip.active {
+    background: white;
+    color: #FF6B35;
+    border-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Action buttons row */
+  .pc-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .pc-autofill-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 22px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .pc-autofill-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .pc-autofill-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .pc-recommend-btn {
+    flex: 1;
+    max-width: 380px;
+    padding: 16px 32px;
+    background: white;
+    color: #FF5500;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    font-family: inherit;
+    letter-spacing: 0.2px;
+  }
+
+  .pc-recommend-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+  }
+
+  .pc-recommend-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .pc-recommend-btn:disabled {
+    opacity: 0.85;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Orange spinner for use on white button */
+  .spinner-orange {
+    border-color: rgba(255, 107, 53, 0.3);
+    border-top-color: #FF6B35;
+  }
+
+  /* --- PC Results --- */
+  .pc-results-section {
+    display: block;
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 48px 40px 0;
+    animation: fadeSlideUp 0.35s ease both;
+  }
+
+  .pc-results-header {
+    margin-bottom: 28px;
+  }
+
+  .pc-results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .pc-result-card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px 24px;
+    box-shadow:
+      0 4px 16px rgba(255, 107, 53, 0.08),
+      0 10px 36px rgba(0, 0, 0, 0.07);
+    animation: fadeSlideUp 0.4s ease both;
+    border-top: 4px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .pc-result-card.rank-1 { border-top-color: #FF6B35; }
+  .pc-result-card.rank-2 { border-top-color: #FFB300; }
+  .pc-result-card.rank-3 { border-top-color: #66BB6A; }
+
+  .pc-result-num {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  .pc-result-num.rank-1 { color: #FF6B35; }
+  .pc-result-num.rank-2 { color: #FFB300; }
+  .pc-result-num.rank-3 { color: #66BB6A; }
+
+  .pc-result-top {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    margin-bottom: 4px !important;
+  }
+}
