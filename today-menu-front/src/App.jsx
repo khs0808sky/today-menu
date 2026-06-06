@@ -1,5 +1,48 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AuthCallback from "./AuthCallback";
 import "./App.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+function ErrorBanner({ error, onClose }) {
+  if (!error) return null;
+  return (
+    <div className="error-banner">
+      <span>⚠️ {error}</span>
+      <button className="error-close" onClick={onClose}>✕</button>
+    </div>
+  );
+}
+
+function NearbySection({ nearbyPlaces, selectedMenu }) {
+  if (!nearbyPlaces) return null;
+  return (
+    <div className="nearby-section">
+      <h3 className="nearby-title">📍 {selectedMenu} 근처 식당</h3>
+      {nearbyPlaces.length === 0 ? (
+        <p className="nearby-empty">근처 식당을 찾지 못했어요.</p>
+      ) : (
+        nearbyPlaces.map((place, i) => (
+          <a
+            key={i}
+            href={place.url}
+            target="_blank"
+            rel="noreferrer"
+            className="nearby-card"
+          >
+            <div className="nearby-name">{place.name}</div>
+            <div className="nearby-address">{place.address}</div>
+            {place.phone && (
+              <div className="nearby-phone">📞 {place.phone}</div>
+            )}
+            <div className="nearby-link">카카오맵에서 보기 →</div>
+          </a>
+        ))
+      )}
+    </div>
+  );
+}
 
 const MOOD_CHIPS = [
   { emoji: "😢", label: "비 와서 우울", value: "비가 와서 우울해요" },
@@ -9,18 +52,20 @@ const MOOD_CHIPS = [
   { emoji: "🎉", label: "기분 최고", value: "오늘 기분이 너무 좋아요" },
 ];
 
-function App() {
-  const [mood, setMood] = useState("");
-  const [weather, setWeather] = useState("");
-  const [location, setLocation] = useState("");
-  const [results, setResults] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [autoLoading, setAutoLoading] = useState(false);
-  const [selectedMood, setSelectedMood] = useState(null);
-  const [nearbyPlaces, setNearbyPlaces] = useState(null);
-  const [nearbyLoading, setNearbyLoading] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState(null);
-
+function MainPage({
+  nickname, setNickname,
+  mood, setMood,
+  weather, setWeather,
+  location, setLocation,
+  results, setResults,
+  loading, setLoading,
+  autoLoading, setAutoLoading,
+  selectedMood, setSelectedMood,
+  nearbyPlaces, setNearbyPlaces,
+  nearbyLoading, setNearbyLoading,
+  selectedMenu, setSelectedMenu,
+  error, setError,
+}) {
   const getLocation = () =>
     new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -34,7 +79,7 @@ function App() {
     });
 
   const getWeather = async (lat, lon) => {
-    const res = await fetch("http://localhost:8000/weather", {
+    const res = await fetch(`${API_URL}/weather`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lat, lon }),
@@ -44,18 +89,27 @@ function App() {
   };
 
   const handleAutoFill = async () => {
+    if (!nickname) {
+      setError("로그인 후 이용해주세요!");
+      setTimeout(() => {
+        window.location.href = `${API_URL}/auth/kakao/login`;
+      }, 1500); // 1.5초 후 로그인 페이지로 이동
+      return;
+    }
+
     try {
+      setError(null);
       setAutoLoading(true);
       const { lat, lon } = await getLocation();
       const [weatherText, addressRes] = await Promise.all([
         getWeather(lat, lon),
-        fetch(`http://localhost:8000/address?lat=${lat}&lon=${lon}`),
+        fetch(`${API_URL}/address?lat=${lat}&lon=${lon}`),
       ]);
       const addressData = await addressRes.json();
       setWeather(weatherText);
       setLocation(addressData.address);
     } catch (error) {
-      alert(error);
+      setError(error);
     } finally {
       setAutoLoading(false);
     }
@@ -77,12 +131,20 @@ function App() {
   };
 
   const handleRecommend = async () => {
+    if (!nickname) {
+      setError("로그인 후 이용해주세요!");
+      setTimeout(() => {
+        window.location.href = `${API_URL}/auth/kakao/login`;
+      }, 1500);
+      return;
+    }
+    setError(null);
     setLoading(true);
     setResults(null);
     setNearbyPlaces(null);
     setSelectedMenu(null);
     try {
-      const res = await fetch("http://localhost:8000/recommend", {
+      const res = await fetch(`${API_URL}/recommend`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mood, weather, location }),
@@ -90,7 +152,7 @@ function App() {
       const data = await res.json();
       setResults(data.recommendations);
     } catch {
-      alert("서버 연결 실패! FastAPI 서버가 켜져 있는지 확인해주세요.");
+      setError("서버 연결 실패! FastAPI 서버가 켜져 있는지 확인해주세요.");
     } finally {
       setLoading(false);
     }
@@ -106,7 +168,7 @@ function App() {
     setNearbyPlaces(null);
     setNearbyLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/nearby", {
+      const res = await fetch(`${API_URL}/nearby`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ menu: menuName, location }),
@@ -114,7 +176,7 @@ function App() {
       const data = await res.json();
       setNearbyPlaces(data.places);
     } catch {
-      alert("근처 식당 검색 실패!");
+      setError("근처 식당 검색 실패!");
     } finally {
       setNearbyLoading(false);
     }
@@ -122,36 +184,34 @@ function App() {
 
   const isLoading = loading || autoLoading;
 
-  const NearbySection = () =>
-    nearbyPlaces && (
-      <div className="nearby-section">
-        <h3 className="nearby-title">📍 {selectedMenu} 근처 식당</h3>
-        {nearbyPlaces.length === 0 ? (
-          <p className="nearby-empty">근처 식당을 찾지 못했어요.</p>
-        ) : (
-          nearbyPlaces.map((place, i) => (
-            <a
-              key={i}
-              href={place.url}
-              target="_blank"
-              rel="noreferrer"
-              className="nearby-card"
-            >
-              <div className="nearby-name">{place.name}</div>
-              <div className="nearby-address">{place.address}</div>
-              {place.phone && (
-                <div className="nearby-phone">📞 {place.phone}</div>
-              )}
-              <div className="nearby-link">카카오맵에서 보기 →</div>
-            </a>
-          ))
-        )}
-      </div>
-    );
-
   return (
     <div className="app">
+      <ErrorBanner error={error} onClose={() => setError(null)} />
+
       <header className="app-header">
+
+        {/* 로그인 버튼 / 닉네임 표시 */}
+        <div className="auth-bar">
+          {nickname ? (
+            <div className="auth-user">
+              <span className="auth-nickname">👋 {nickname}님</span>
+              <button
+                className="logout-btn"
+                onClick={() => setNickname(null)}
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <button
+              className="kakao-login-btn"
+              onClick={() => window.location.href = `${API_URL}/auth/kakao/login`}
+            >
+              카카오 로그인
+            </button>
+          )}
+        </div>
+
         <div className="hero-brand">
           <span className="app-logo">🍜</span>
           <h1 className="app-title">오늘 뭐 먹지?</h1>
@@ -204,6 +264,7 @@ function App() {
 
           <div className="pc-form-actions">
             <button className="pc-autofill-btn" onClick={handleAutoFill} disabled={isLoading}>
+
               {autoLoading ? <span className="spinner" /> : <span>📍</span>}
               <span>{autoLoading ? "위치·날씨 가져오는 중..." : "위치·날씨 자동"}</span>
             </button>
@@ -259,7 +320,7 @@ function App() {
               </div>
             ))}
           </div>
-          <NearbySection />
+          <NearbySection nearbyPlaces={nearbyPlaces} selectedMenu={selectedMenu} />
         </div>
       )}
 
@@ -373,10 +434,49 @@ function App() {
           </div>
         )}
 
-        <NearbySection />
+        <NearbySection nearbyPlaces={nearbyPlaces} selectedMenu={selectedMenu} />
         <div className="bottom-spacer" />
       </div>
     </div>
+  );
+}
+
+function App() {
+  const [nickname, setNickname] = useState(null);
+  const [mood, setMood] = useState("");
+  const [weather, setWeather] = useState("");
+  const [location, setLocation] = useState("");
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [autoLoading, setAutoLoading] = useState(false);
+  const [selectedMood, setSelectedMood] = useState(null);
+  const [nearbyPlaces, setNearbyPlaces] = useState(null);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState(null);
+  const [error, setError] = useState(null);
+
+  const props = {
+    nickname, setNickname,
+    mood, setMood,
+    weather, setWeather,
+    location, setLocation,
+    results, setResults,
+    loading, setLoading,
+    autoLoading, setAutoLoading,
+    selectedMood, setSelectedMood,
+    nearbyPlaces, setNearbyPlaces,
+    nearbyLoading, setNearbyLoading,
+    selectedMenu, setSelectedMenu,
+    error, setError,
+  };
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/auth/callback" element={<AuthCallback onLogin={setNickname} />} />
+        <Route path="/" element={<MainPage {...props} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

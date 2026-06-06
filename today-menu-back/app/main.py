@@ -9,14 +9,16 @@ from app.recommender import recommend_menu
 from dotenv import load_dotenv
 import os
 import httpx                                        # ← httpx 추가
+from app.auth import router as auth_router
 
 load_dotenv()
 
 app = FastAPI(title="오늘 뭐 먹지? API")
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["*"],  # 배포 후 Vercel 주소 확인하면 실제 주소로 교체 예정
     allow_methods=["*"],
     allow_headers=["*"],
 )
