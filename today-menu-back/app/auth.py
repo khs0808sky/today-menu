@@ -13,7 +13,8 @@ load_dotenv()
 router = APIRouter()
 
 KAKAO_REST_API_KEY = os.getenv("KAKAO_REST_API_KEY")
-KAKAO_REDIRECT_URI = "http://localhost:8000/auth/kakao/callback"
+KAKAO_REDIRECT_URI = "https://today-menu-production.up.railway.app/auth/kakao/callback"
+
 
 # ① 로그인 버튼 클릭 시 → 카카오 로그인 페이지로 보내기
 @router.get("/auth/kakao/login")
@@ -57,4 +58,4 @@ async def kakao_callback(code: str):
     nickname = user_data.get("kakao_account", {}).get("profile", {}).get("nickname", "사용자")
 
     # Step 3: 프론트로 닉네임 들고 리다이렉트
-    return RedirectResponse(f"http://localhost:5173/auth/callback?nickname={nickname}")
+    return RedirectResponse(f"https://today-menu-pi.vercel.app/auth/callback?nickname={nickname}")
